@@ -26,6 +26,7 @@ connexion.commit()
 
 curseur.execute("""
                 CREATE TABLE IF NOT EXISTS asso_action_utilisateur ( 
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 prix_achat FLOAT,
                 date_achat TEXT NOT NULL,
                 prix_vente FLOAT,
