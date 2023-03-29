@@ -30,7 +30,7 @@ curseur.execute("""
                 prix_achat FLOAT,
                 date_achat TEXT NOT NULL,
                 prix_vente FLOAT,
-                date_vente TEXT NOT NULL,
+                date_vente TEXT,
                 utilisateur_id INTEGER,
                 action_id  INTEGER,
                 FOREIGN KEY(utilisateur_id) REFERENCES utilisateur(id),
