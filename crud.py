@@ -40,7 +40,7 @@ def ajouter_action(entreprise, prix):
 
 
 #ACHETER UNE ACTION
-def ajouter_asso_action_user(utilisateur_id, action_id, prix_achat, date_achat):
+def ajouter_asso_action_user(prix_achat, date_achat, utilisateur_id, action_id):
     connexion = sqlite3.connect("bdd.db")
     curseur = connexion.cursor()
     curseur.execute("""
@@ -50,6 +50,16 @@ def ajouter_asso_action_user(utilisateur_id, action_id, prix_achat, date_achat):
     connexion.commit()
 
 #ajouter_asso_action_user(1, 'janvier', 5,6)
+
+# SUPPRIMER UN ACHAT 
+def supprimer_achat(achat_id):
+        connexion = sqlite3.connect("bdd.db")
+        curseur = connexion.cursor()
+        curseur.execute("""
+                        DELETE FROM asso_action_utilisateur
+                        WHERE id = ?
+                        """,(achat_id,))
+        connexion.commit()
 
 # SUIVRE UN USER
 def ajouter_asso_user_suiveur(suiveur_id, suivi_id ):

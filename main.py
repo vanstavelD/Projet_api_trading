@@ -62,6 +62,9 @@ class Desabonnement(BaseModel):
 
 class DeleteUser(BaseModel):
     utilisateur_id: int
+    
+class DeleteAchat(BaseModel):
+    achat_id: int
 
 # Initialisation de l'application :
 app = FastAPI()
@@ -165,3 +168,10 @@ def supprimer_user(delete_user: DeleteUser):
     delete_user_dict = delete_user.dict()
     crud.supprimer_user(delete_user_dict["utilisateur_id"])
     return {"message": "Utilisateur supprimé"}
+
+# SUPPRIMER UN ACHAT
+@app.delete("/delete_achat-action/")
+def supprimer_achat(delete_achat: DeleteAchat):
+    delete_achat_dict = delete_achat.dict()
+    crud.supprimer_achat(delete_achat_dict["achat_id"])
+    return {"message": "Achat supprimé"}
