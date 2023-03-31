@@ -22,10 +22,6 @@ def hasher_mdp(mdp):
 # La variable pwd_context est initialisée en utilisant la librairie passlib pour la gestion de mots de passe en utilisant l'algorithme de cryptage Bcrypt.
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# La fonction verify_password(plain_password, hashed_password) prend un mot de passe en clair et le mot de passe crypté, elle renvoie True si le mot de passe en clair correspond au mot de passe crypté, False sinon.
-# def verify_password(plain_password, hashed_password):
-#     return pwd_context.verify(plain_password, hashed_password)
-
 # La fonction get_password_hash(password) prend un mot de passe en clair, l'encrypte avec l'algorithme Bcrypt et renvoie l'encrypted password.
 def get_password_hash(password):
     return pwd_context.hash(password)
@@ -94,6 +90,7 @@ def creer_utilisateur(user: UserCreate):
     crud.ajouter_utilisateur(user_dict["nom"], user_dict["email"], user_dict["mdp"], jwt_token)
     return {"message": "Utilisateur créé"}
 
+# CONNEXION 
 @app.post("/user/connexion/")
 def connexion_utilisateur(user: UserConnexion):
     user_dict = user.dict()
@@ -116,7 +113,7 @@ def connexion_utilisateur(user: UserConnexion):
 
 # ACHETER UNE ACTION
 @app.post("/achat-action/")
-async def achat_action(achat: AchatAction, req: Request):
+def achat_action(achat: AchatAction):
     achat_dict = achat.dict()
     crud.ajouter_asso_action_user(achat_dict["prix_achat"], achat_dict["date_achat"], achat_dict["utilisateur_id"], achat_dict["action_id"])
     return {"message": "Action achetée"}

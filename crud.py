@@ -119,8 +119,6 @@ def recuperer_list_action(utilisateur_id: int):
         connexion.close()
         return resultat
 
-#print(recuperer_list_action())
-
 
 # LISTE DES ACTIONS DISPONIBLE
 
