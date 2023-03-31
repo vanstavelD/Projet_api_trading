@@ -23,8 +23,8 @@ def hasher_mdp(mdp):
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # La fonction verify_password(plain_password, hashed_password) prend un mot de passe en clair et le mot de passe crypté, elle renvoie True si le mot de passe en clair correspond au mot de passe crypté, False sinon.
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+# def verify_password(plain_password, hashed_password):
+#     return pwd_context.verify(plain_password, hashed_password)
 
 # La fonction get_password_hash(password) prend un mot de passe en clair, l'encrypte avec l'algorithme Bcrypt et renvoie l'encrypted password.
 def get_password_hash(password):
@@ -51,6 +51,12 @@ class AchatAction(BaseModel):
     date_achat: str
     utilisateur_id: int
     action_id: int
+
+class VenteAction(BaseModel):
+    id: int
+    prix_vente: float
+    date_vente: str
+    
 
 class SuivreUser(BaseModel):
     suiveur_id: int
@@ -95,53 +101,59 @@ def connexion_utilisateur(user: UserConnexion):
     if not user_enregistre:
         raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
     user_enregistre = user_enregistre[0]
-    if not verify_password(user_dict["mdp"], user_enregistre[2]):
-        raise HTTPException(status_code=401, detail="Mot de passe incorrect")
     jwt_token = jwt.encode({"sub": user_enregistre[1]}, SECRET_KEY, algorithm=ALGORITHM)
     crud.update_token(user_enregistre[0], jwt_token)
     return {"jwt_token": jwt_token}
 
-@app.post("/action/")
-def ajouter_action(action: ActionCreate):
-    action_dict = action.dict()
-    crud.ajouter_action(action_dict["entreprise"], action_dict["prix"])
-    return {"message": "Action ajoutée"}
 
+
+# AJOUTER UNE ACTION
+# @app.post("/action/")
+# def ajouter_action(action: ActionCreate):
+#     action_dict = action.dict()
+#     crud.ajouter_action(action_dict["entreprise"], action_dict["prix"])
+#     return {"message": "Action ajoutée"}
+
+# ACHETER UNE ACTION
 @app.post("/achat-action/")
-def achat_action(achat: AchatAction):
+async def achat_action(achat: AchatAction, req: Request):
     achat_dict = achat.dict()
     crud.ajouter_asso_action_user(achat_dict["prix_achat"], achat_dict["date_achat"], achat_dict["utilisateur_id"], achat_dict["action_id"])
     return {"message": "Action achetée"}
 
+
+# VENDRE ACTION
+@app.put("/asso-action-utilisateur/")
+def modifier_prix_date_vente(vendre: VenteAction):
+    vendre_dict = vendre.dict()
+    crud.modifier_prix_date_vente(vendre_dict["id"], vendre_dict["prix_vente"], vendre_dict["date_vente"])
+    return {"message": "Action vendu"}
+
+
+# SUIVRE UN USER 
 @app.post("/suivre/")
 def suivre_user(suivre: SuivreUser):
     suivre_dict = suivre.dict()
     crud.ajouter_asso_user_suiveur(suivre_dict["suiveur_id"], suivre_dict["suivi_id"])
     return {"message": "Abonnement ajouté"}
 
+# DESABONNEMENT 
 @app.delete("/desabonnement/")
 def desabonner_user(desabonnement: Desabonnement):
     desabonnement_dict = desabonnement.dict()
     crud.desabonner_user(desabonnement_dict["suiveur_id"], desabonnement_dict["suivi_id"])
     return {"message": "Abonnement supprimé"}
 
+# LISTE DES ACTIONS DISPONIBLES 
 @app.get("/actions/")
 def get_actions():
-    actions = crud.recuperer_list_action()
+    actions = crud.list_action_disponible()
     actions_list = []
     for action in actions:
         action_dict = {"id": action[0], "entreprise": action[1], "prix": action[2]}
         actions_list.append(action_dict)
     return {"actions": actions_list}
 
-# @app.get("/abonnements/{utilisateur_id}")
-# def get_abonnements(utilisateur_id: int):
-#     abonnements = crud.get_abonnements(utilisateur_id)
-#     abonnements_list = []
-#     for abonnement in abonnements:
-#         abonnement_dict = {"id": abonnement[0], "suiveur_id": abonnement[1], "suivi_id": abonnement[2]}
-#         abonnements_list.append(abonnement_dict)
-#     return {"abonnements": abonnements_list}
 
 # VOIR LA LISTE DES ACTIONS PAR UTILISATEUR
 @app.get("/actions-utilisateur/{utilisateur_id}")
@@ -153,21 +165,13 @@ def get_actions_utilisateur(utilisateur_id: int):
         actions_list.append(action_dict)
     return {"actions": actions_list}
 
-# @app.get("/actions-suivi/{utilisateur_id}")
-# def get_actions_suivi(utilisateur_id: int):
-#     actions_suivi = crud.get_actions_suivi(utilisateur_id)
-#     actions_list = []
-#     for action in actions_suivi:
-#         action_dict = {"id": action[0], "entreprise": action[1], "prix": action[2]}
-#         actions_list.append(action_dict)
-#     return {"actions": actions_list}
 
 # SUPPRIMER USER
-@app.delete("/delete_user/")
-def supprimer_user(delete_user: DeleteUser):
-    delete_user_dict = delete_user.dict()
-    crud.supprimer_user(delete_user_dict["utilisateur_id"])
-    return {"message": "Utilisateur supprimé"}
+# @app.delete("/delete_user/")
+# def supprimer_user(delete_user: DeleteUser):
+#     delete_user_dict = delete_user.dict()
+#     crud.supprimer_user(delete_user_dict["utilisateur_id"])
+#     return {"message": "Utilisateur supprimé"}
 
 # SUPPRIMER UN ACHAT
 @app.delete("/delete_achat-action/")
